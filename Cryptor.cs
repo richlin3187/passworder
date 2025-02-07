@@ -14,9 +14,9 @@ public class Cryptor
         // create an encryptor
         using CryptoStream cse = new(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
 
-        // write the encrypted text to the stream
-        using StreamWriter sw = new(cse);
-        return sw.ToString();
+// Stream is not readable!?! wtf
+        using StreamReader sr = new(cse);
+        return sr.ReadToEnd();
     }
     
     public string Decrypt(string cypherText, string password, string iv)

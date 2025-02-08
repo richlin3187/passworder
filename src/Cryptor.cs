@@ -7,7 +7,7 @@ internal class Cryptor
 {
     public EncryptedValue Encrypt(string plainText, string password, string hint)
     {
-        var plainTextBytes = ToBytes(plainText);
+        var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
         using MemoryStream ms = new();
         ms.Write(plainTextBytes);
         using Aes aes = Aes.Create();
@@ -25,10 +25,11 @@ internal class Cryptor
     public string Decrypt(EncryptedValue encryptedObject, string password)
     {
         using MemoryStream ms = new();
+        ms.Write(Encoding.ASCII.GetBytes(encryptedObject.CypherText));
         using Aes aes = Aes.Create();
         // create a decryptor
         var key = ToBytes(password);
-        var ivBytes = Encoding.ASCII.GetBytes(encryptedObject.Nonce);
+        var ivBytes = Convert.FromBase64String(encryptedObject.Nonce);
         using CryptoStream csd = new(ms, aes.CreateDecryptor(key, ivBytes), CryptoStreamMode.Read);
 
         using StreamReader sr = new(csd);

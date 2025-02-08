@@ -63,7 +63,7 @@ public class Program
         var encryptedContents = JsonSerializer.Serialize(encryptedValue);
         File.WriteAllText(fileLocation!, encryptedContents);
         Write($"File encrypted at {fileLocation!}. Press any key to continue.");
-        Console.ReadKey();
+        Console.ReadLine();
     }
 
     private static void DecryptAction()

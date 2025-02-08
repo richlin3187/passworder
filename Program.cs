@@ -78,7 +78,7 @@ public class Program
 
         var cryptor = new Cryptor();
         var decryptedValue = cryptor.Decrypt(encryptedValue!, password!);
-        Write(decryptedValue);
+        Write($"Decrypted the value to: {decryptedValue}");
     }
     
     private static void Write(string message)

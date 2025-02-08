@@ -25,15 +25,15 @@ internal class Cryptor
     public string Decrypt(EncryptedValue encryptedObject, string password)
     {
         using MemoryStream ms = new();
-        ms.Write(Encoding.ASCII.GetBytes(encryptedObject.CypherText));
+        var cypherTextBytes = Encoding.ASCII.GetBytes(encryptedObject.CypherText);
+        ms.Write(cypherTextBytes);
         using Aes aes = Aes.Create();
         // create a decryptor
         var key = ToBytes(password);
         var ivBytes = Convert.FromBase64String(encryptedObject.Nonce);
         using CryptoStream csd = new(ms, aes.CreateDecryptor(key, ivBytes), CryptoStreamMode.Read);
-
-        using StreamReader sr = new(csd);
-        string decryptedText = sr.ReadToEnd();
+        csd.ReadExactly(cypherTextBytes);
+        var decryptedText = Convert.ToBase64String(cypherTextBytes);
         return decryptedText;
     }
 

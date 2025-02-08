@@ -8,7 +8,7 @@
             "name": "C#: passworder Debug",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/TestCryptor.csproj"
+            "projectPath": "${workspaceFolder}/Passworder.csproj"
         },
     {
         "name": ".NET Core Attach",

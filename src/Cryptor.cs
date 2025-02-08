@@ -3,32 +3,33 @@ using System.Text;
 
 namespace Passworder;
 
-public class Cryptor 
+internal class Cryptor 
 {
-    public string Encrypt(string plainText, string password, string iv)
+    public EncryptedValue Encrypt(string plainText, string password, string hint)
     {
         var plainTextBytes = ToBytes(plainText);
-        using MemoryStream ms = new(plainTextBytes);
+        using MemoryStream ms = new();
+        ms.Write(plainTextBytes);
         using Aes aes = Aes.Create();
-        //aes.GenerateIV(); // this is a salt value - is this actually needed since we're generating our own value?
+        aes.GenerateIV();
         aes.Key = ToBytes(password);
-        
-        // need to use secure IV generator
-        aes.IV = ToBytesHalved(iv);
 
         // create an encryptor
         using CryptoStream cse = new(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
         cse.Write(plainTextBytes, 0, plainTextBytes.Length);
-        return Convert.ToBase64String(ms.ToArray());
+        var cypherText = Convert.ToBase64String(ms.ToArray());
+        var nonce = Convert.ToBase64String(aes.IV);
+        return new EncryptedValue(cypherText, hint, nonce);
     }
     
-    public string Decrypt(string cypherText, string password, string iv)
+    public string Decrypt(EncryptedValue encryptedObject, string password)
     {
-        using MemoryStream ms = new(ToBytes(cypherText));
+        using MemoryStream ms = new();
         using Aes aes = Aes.Create();
         // create a decryptor
         var key = ToBytes(password);
-        using CryptoStream csd = new(ms, aes.CreateDecryptor(ToBytes(password), ToBytesHalved(iv)), CryptoStreamMode.Read);
+        var ivBytes = Encoding.ASCII.GetBytes(encryptedObject.Nonce);
+        using CryptoStream csd = new(ms, aes.CreateDecryptor(key, ivBytes), CryptoStreamMode.Read);
 
         using StreamReader sr = new(csd);
         string decryptedText = sr.ReadToEnd();

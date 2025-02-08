@@ -1,22 +1,25 @@
 using System.Security.Cryptography;
 using System.Text;
 
+namespace Passworder;
+
 public class Cryptor 
 {
     public string Encrypt(string plainText, string password, string iv)
     {
-        using MemoryStream ms = new(ToBytes(plainText));
+        var plainTextBytes = ToBytes(plainText);
+        using MemoryStream ms = new(plainTextBytes);
         using Aes aes = Aes.Create();
-        aes.GenerateIV(); // this is a salt value
+        //aes.GenerateIV(); // this is a salt value - is this actually needed since we're generating our own value?
         aes.Key = ToBytes(password);
+        
+        // need to use secure IV generator
         aes.IV = ToBytesHalved(iv);
 
         // create an encryptor
         using CryptoStream cse = new(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
-
-// Stream is not readable!?! wtf
-        using StreamReader sr = new(cse);
-        return sr.ReadToEnd();
+        cse.Write(plainTextBytes, 0, plainTextBytes.Length);
+        return Convert.ToBase64String(ms.ToArray());
     }
     
     public string Decrypt(string cypherText, string password, string iv)

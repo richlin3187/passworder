@@ -32,20 +32,53 @@ internal class Cryptor
         var key = ToBytes(password);
         var ivBytes = Convert.FromBase64String(encryptedObject.Nonce);
         using CryptoStream csd = new(ms, aes.CreateDecryptor(key, ivBytes), CryptoStreamMode.Read);
-        csd.ReadExactly(cypherTextBytes);
+        csd.Read(cypherTextBytes);
         var decryptedText = Convert.ToBase64String(cypherTextBytes);
         return decryptedText;
+    }
+
+    private void EncryptInternal(Stream input, Stream output)
+    {
+        Aes aes = Aes.Create();
+
+        aes.Key = Key;
+        aes.IV = IV;
+        aes.Padding = PaddingMode.PKCS7;
+        //aes.Mode = CipherMode.CBC;
+        //aes.BlockSize = 128;
+
+        ICryptoTransform aesEncryptor = aes.CreateEncryptor();
+
+        using (CryptoStream cryptoStream = new(output, aesEncryptor, CryptoStreamMode.Write))
+        {
+            input.CopyTo(cryptoStream);
+            cryptoStream.FlushFinalBlock();
+        }
+    }
+
+    private void DecryptInternal(Stream input, Stream output)
+    {
+        Aes aes = Aes.Create();
+
+        aes.Key = Key;
+        aes.IV = IV;
+        aes.Padding = PaddingMode.PKCS7;
+        //aes.Mode = CipherMode.CBC;
+        //aes.BlockSize = 128;
+
+        ICryptoTransform aesDecryptor = aes.CreateDecryptor();
+
+        using (CryptoStream cryptoStream = new(input, aesDecryptor, CryptoStreamMode.Read))
+        {
+            cryptoStream.CopyTo(output);
+            cryptoStream.Close();
+        }
+        output.Flush();
     }
 
     private static byte[] ToBytes(string originalValue)
     {
         using var sha = SHA256.Create();
         return sha.ComputeHash(Encoding.ASCII.GetBytes(originalValue));
-    }
-
-    private static byte[] ToBytesHalved(string originalValue)
-    {
-        var fullBytes = ToBytes(originalValue);
-        return [.. fullBytes.Take(16)];
     }
 }

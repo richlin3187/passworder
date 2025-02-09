@@ -32,7 +32,10 @@ internal class Cryptor
         var key = ToBytes(password);
         var ivBytes = Convert.FromBase64String(encryptedObject.Nonce);
         using CryptoStream csd = new(ms, aes.CreateDecryptor(key, ivBytes), CryptoStreamMode.Read);
-        csd.Read(cypherTextBytes);
+        using MemoryStream output = new ();
+        csd.CopyTo(output);
+        csd.Close();
+        cypherTextBytes = output.ToArray();
         var decryptedText = Convert.ToBase64String(cypherTextBytes);
         return decryptedText;
     }

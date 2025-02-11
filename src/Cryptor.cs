@@ -44,8 +44,8 @@ internal class Cryptor
     {
         Aes aes = Aes.Create();
 
-        aes.Key = Key;
-        aes.IV = IV;
+        //aes.Key = Key;
+        //aes.IV = IV;
         aes.Padding = PaddingMode.PKCS7;
         //aes.Mode = CipherMode.CBC;
         //aes.BlockSize = 128;
@@ -63,8 +63,8 @@ internal class Cryptor
     {
         Aes aes = Aes.Create();
 
-        aes.Key = Key;
-        aes.IV = IV;
+        //aes.Key = Key;
+        //aes.IV = IV;
         aes.Padding = PaddingMode.PKCS7;
         //aes.Mode = CipherMode.CBC;
         //aes.BlockSize = 128;
